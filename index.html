@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>MOTI — Цитаты</title>
+  <meta name="theme-color" content="#000000">
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root{
+      --bg:#000000;
+      --fg:#ffffff;
+      --muted:#9aa0a6;
+      --accent:#c9f31d;
+      --danger:#ff4d4f;
+      --ok:#2bd27e;
+      --card-bg:rgba(255,255,255,0.06);
+      --card-border:rgba(255,255,255,0.08);
+      --shadow:0 20px 60px rgba(0,0,0,0.6);
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      background:#000;
+      color:#fff;
+      font-family:"Inter",system-ui,-apple-system,Segoe UI,Roboto,Arial,Helvetica,sans-serif;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      user-select:none;
+      overflow:hidden;
+    }
+    .app{
+      display:flex;flex-direction:column;height:100vh;max-width:820px;margin:0 auto;position:relative;
+      padding:10px 14px env(safe-area-inset-bottom);
+    }
+    .topbar{
+      display:flex;align-items:center;justify-content:space-between;padding:6px 2px 2px;
+    }
+    .brand{
+      display:flex;align-items:center;gap:10px;
+    }
+    .logo{
+      width:26px;height:26px;border-radius:8px;background:linear-gradient(135deg,#1f1f1f,#2a2a2a);
+      display:grid;place-items:center;font-weight:800;color:#fff;border:1px solid var(--card-border);
+      box-shadow:var(--shadow);
+    }
+    .brand .name{font-weight:800;letter-spacing:0.4px}
+    .stats{
+      font-size:12px;color:var(--muted);display:flex;gap:14px
+    }
+    .actions{display:flex;gap:8px}
+    .icon-btn{
+      width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,0.06);
+      display:grid;place-items:center;border:1px solid var(--card-border);cursor:pointer;transition:opacity .2s ease;
+    }
+    .icon-btn:hover{opacity:.85}
+    .main{
+      position:relative;flex:1;display:grid;place-items:center;overflow:hidden;padding:8px 0 84px;
+    }
+    #card-stack{position:relative;width:min(92vw,560px);height:min(72vh,720px);max-height:78vh}
+    .card{
+      position:absolute;inset:0;margin:auto;border-radius:18px;background:var(--card-bg);
+      border:1px solid var(--card-border);backdrop-filter:saturate(180%) blur(6px);
+      box-shadow:var(--shadow);overflow:hidden;color:#fff;display:flex;flex-direction:column;justify-content:flex-end;
+      padding:22px 20px 18px;touch-action:none;will-change:transform, opacity;
+      transition:transform .4s cubic-bezier(.22,.61,.36,1), opacity .3s ease;
+    }
+    .card .bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;filter:brightness(0.76);transform:scale(1.02);transition:transform .6s ease}
+    .card:hover .bg{transform:scale(1.05)}
+    .card .overlay{
+      position:absolute;inset:0;pointer-events:none;z-index:1;background:
+        radial-gradient(1200px 800px at 20% -20%, rgba(255,255,255,0.06), transparent 60%),
+        linear-gradient(to top, rgba(0,0,0,0.72), rgba(0,0,0,0.2));
+      mix-blend-mode:normal;
+    }
+    .card .category,.card .quote,.card .author,.card .bottom-row,.card .like-badge,.card .nope-badge{position:relative;z-index:2}
+    .card .category{
+      position:absolute;top:12px;left:12px;font-size:11px;padding:6px 10px;border-radius:999px;
+      background:rgba(255,255,255,0.08);border:1px solid var(--card-border);text-transform:uppercase;
+      letter-spacing:.08em;color:#e4e4e4;
+    }
+    .quote{font-size: clamp(20px,4vw,30px);line-height:1.25;font-weight:700;letter-spacing:0.2px;margin:0 0 14px;white-space:pre-wrap;}
+    .author{font-size:12px;color:#d0d0d0;opacity:.9}
+    .bottom-row{display:flex;justify-content:space-between;align-items:center;margin-top:10px}
+    .hint{font-size:11px;color:#9aa0a6}
+    .like-badge,.nope-badge{
+      position:absolute;top:16px;right:16px;padding:8px 12px;border-radius:10px;font-weight:800;letter-spacing:.06em;
+      border:2px solid; transform:rotate(5deg); opacity:0; transition:opacity .2s;
+    }
+    .like-badge{color:#2bd27e;border-color:#2bd27e;background:rgba(43,210,126,0.08)}
+    .nope-badge{color:#ff4d4f;border-color:#ff4d4f;background:rgba(255,77,79,0.08)}
+    .controls{
+      position:fixed;left:0;right:0;bottom:12px;display:flex;justify-content:center;gap:16px;pointer-events:none;
+    }
+    .ctrl{
+      pointer-events:auto;width:64px;height:64px;border-radius:999px;border:1px solid var(--card-border);
+      background:rgba(255,255,255,0.06);display:grid;place-items:center;font-size:26px;cursor:pointer;
+      transition:transform .15s ease, background .2s ease;
+    }
+    .ctrl:active{transform:scale(0.96)}
+    .ctrl.danger{background:rgba(255,77,79,0.08)}
+    .ctrl.ok{background:rgba(43,210,126,0.08)}
+    .hidden{display:none !important}
+    .loading{
+      position:absolute;inset:0;display:grid;place-items:center;background:rgba(0,0,0,0.4);backdrop-filter:blur(2px);
+    }
+    .spinner{
+      width:36px;height:36px;border-radius:50%;border:3px solid rgba(255,255,255,0.18);
+      border-top-color:#fff;animation:spin 1s linear infinite;
+    }
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .toast{
+      position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:rgba(255,255,255,0.08);
+      border:1px solid var(--card-border);padding:10px 14px;border-radius:12px;color:#fff;font-size:13px;opacity:0;pointer-events:none;
+      transition:opacity .25s ease, transform .25s ease;
+    }
+    .toast.show{opacity:1;transform:translateX(-50%) translateY(-6px)}
+    /* Favorites panel */
+    .panel{
+      position:fixed;left:0;right:0;bottom:0;max-height:82vh;background:#0a0a0a;border-top:1px solid var(--card-border);
+      border-radius:16px 16px 0 0;transform:translateY(100%);transition:transform .35s cubic-bezier(.22,.61,.36,1);
+      box-shadow:0 -20px 60px rgba(0,0,0,0.7);display:flex;flex-direction:column;overflow:hidden;
+    }
+    .panel.open{transform:translateY(0)}
+    .panel-header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--card-border)}
+    .panel-title{font-weight:800}
+    .fav-list{overflow:auto;padding:10px 8px;display:flex;flex-direction:column;gap:10px}
+    .fav-item{
+      background:rgba(255,255,255,0.06);border:1px solid var(--card-border);border-radius:12px;padding:12px;display:flex;gap:10px;
+    }
+    .fav-main{flex:1}
+    .fav-q{font-weight:600;margin-bottom:6px}
+    .fav-meta{font-size:11px;color:var(--muted)}
+    .fav-actions{display:flex;gap:8px}
+    .btn{
+      font-size:12px;border:1px solid var(--card-border);background:rgba(255,255,255,0.06);
+      color:#fff;border-radius:10px;padding:8px 10px;cursor:pointer
+    }
+    .btn:active{transform:scale(0.98)}
+    .kbd{font-family:ui-monospace,SFMono-Regular,Monaco,Menlo,Consolas,"Liberation Mono","Courier New",monospace;font-size:11px;color:#bfbfbf}
+    .ghost{opacity:.5}
+    @media (min-width:820px){
+      .controls{bottom:20px}
+      .ctrl{width:70px;height:70px}
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="topbar">
+      <div class="brand">
+        <div class="logo">M</div>
+        <div class="name">MOTI</div>
+        <div class="stats">
+          <div id="viewedStat">Просмотрено: 0</div>
+          <div id="favStat">Избранное: 0</div>
+        </div>
+      </div>
+      <div class="actions">
+        <button class="icon-btn" id="shareCurrent" title="Поделиться (изображение)">⤴</button>
+        <button class="icon-btn" id="openFav" title="Избранное">★</button>
+      </div>
+    </div>
+
+    <div class="main">
+      <div id="card-stack"></div>
+      <div class="loading hidden" id="loading"><div class="spinner"></div></div>
+    </div>
+
+    <div class="controls">
+      <button class="ctrl danger" id="btnNope" title="Не нравится (←)">❌</button>
+      <button class="ctrl" id="btnFav" title="В избранное">★</button>
+      <button class="ctrl ok" id="btnLike" title="Нравится (→)">❤️</button>
+    </div>
+  </div>
+
+  <div class="panel" id="favPanel" aria-hidden="true">
+    <div class="panel-header">
+      <div class="panel-title">Избранное</div>
+      <div class="kbd">← / → — свайп · Enter — поделиться · Esc — закрыть</div>
+      <div style="display:flex; gap:8px">
+        <button class="btn" id="exportFav">Экспорт</button>
+        <button class="btn" id="clearFav">Очистить</button>
+        <button class="btn" id="closeFav">Закрыть</button>
+      </div>
+    </div>
+    <div class="fav-list" id="favList"></div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
+
+
