@@ -1,0 +1,11 @@
+{
+  "name": "moti-quotes",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "npx serve -p 3000",
+    "fetch:images": "node scripts/fetch-images.js",
+    "parse:quotes": "node scripts/parse-raw-quotes.js data/quotes_raw_1_800.txt"
+  }
+}
+
